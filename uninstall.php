@@ -1,23 +1,9 @@
 <?php
-
 /**
  * Fired when the plugin is uninstalled.
  *
- * When populating this file, consider the following flow
- * of control:
- *
- * - This method should be static
- * - Check if the $_REQUEST content actually is the plugin name
- * - Run an admin referrer check to make sure it goes through authentication
- * - Verify the output of $_GET makes sense
- * - Repeat with other user roles. Best directly by using the links/query string parameters.
- * - Repeat things for multisite. Once for a single site in the network, once sitewide.
- *
- * This file may be updated more in future version of the Boilerplate; however, this is the
- * general skeleton and outline for how the file should work.
- *
- * For more information, see the following discussion:
- * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
+ * Deletes the plugin options. Questions (wc_product_faq posts) and their
+ * answers (comments) are intentionally kept, because they are store content.
  *
  * @link       http://profiles.wordpress.org/vishalkakadiya/
  * @since      1.0.0
@@ -26,6 +12,24 @@
  */
 
 // If uninstall not called from WordPress, then exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+if ( ! defined( 'ABSPATH' ) || ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
+}
+
+/*
+ * Remove the plugin settings. Questions and answers are store content, so
+ * they are kept and can still be managed after reinstalling the plugin.
+ */
+$product_faq_options = array(
+	'wc_product_faq_feature',
+	'wc_product_faq_category_list',
+	'wc_product_faq_sender_email',
+	'wc_product_faq_email_logo',
+	'wc_product_faq_question_title',
+	'wc_product_faq_question_subject',
+	'wc_product_faq_question_button_text',
+);
+
+foreach ( $product_faq_options as $product_faq_option ) {
+	delete_option( $product_faq_option );
 }

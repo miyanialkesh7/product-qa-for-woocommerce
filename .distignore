@@ -1,0 +1,10 @@
+/.git
+/.github
+/node_modules
+.distignore
+.editorconfig
+.gitattributes
+.gitignore
+package.json
+package-lock.json
+README.md

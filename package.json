@@ -1,6 +1,6 @@
 {
   "name": "product-qa-for-woocommerce",
-  "version": "1.0.0",
+  "version": "2.1",
   "description": "[![Scrutinizer Build](https://scrutinizer-ci.com/g/vishalkakadiya/product-qa-for-woocommerce/badges/build.png?b=master)](https://scrutinizer-ci.com/g/vishalkakadiya/product-qa-for-woocommerce/) [![Scrutinizer Build](https://scrutinizer-ci.com/g/vishalkakadiya/product-qa-for-woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vishalkakadiya/product-qa-for-woocommerce/)",
   "main": "index.js",
   "scripts": {

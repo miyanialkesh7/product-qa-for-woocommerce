@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Fired during plugin activation
+ * Fired during plugin activation.
  *
  * @link       http://profiles.wordpress.org/vishalkakadiya/
  * @since      1.0.0
@@ -9,6 +8,11 @@
  * @package    Product_Faq_For_Woocommerce
  * @subpackage Product_Faq_For_Woocommerce/includes
  */
+
+// Abort if this file is accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Fired during plugin activation.
@@ -23,14 +27,13 @@
 class Product_Faq_For_Woocommerce_Activator {
 
 	/**
-	 * Short Description. (use period)
+	 * Run plugin activation tasks.
 	 *
-	 * Long Description.
+	 * This placeholder method keeps the activation hook in place for future setup work.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
+	 * @access public
 	 */
 	public static function activate() {
-
 	}
-
 }

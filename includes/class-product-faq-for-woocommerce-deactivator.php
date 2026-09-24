@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Fired during plugin deactivation
+ * Fired during plugin deactivation.
  *
  * @link       http://profiles.wordpress.org/vishalkakadiya/
  * @since      1.0.0
@@ -9,6 +8,11 @@
  * @package    Product_Faq_For_Woocommerce
  * @subpackage Product_Faq_For_Woocommerce/includes
  */
+
+// Abort if this file is accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Fired during plugin deactivation.
@@ -23,14 +27,13 @@
 class Product_Faq_For_Woocommerce_Deactivator {
 
 	/**
-	 * Short Description. (use period)
+	 * Run plugin deactivation tasks.
 	 *
-	 * Long Description.
+	 * This placeholder method keeps the deactivation hook in place for future cleanup work.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
+	 * @access public
 	 */
 	public static function deactivate() {
-
 	}
-
 }

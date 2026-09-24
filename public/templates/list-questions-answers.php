@@ -1,9 +1,8 @@
 <?php
-
 /**
  * Display question and answer list on woocommerce product detail page
  *
- * Includes in Product_Faq_For_Woocommerce_Public::faq_tab_content().
+ * Included from Product_Faq_For_Woocommerce_Public::faq_tab_content().
  *
  * @link       http://profiles.wordpress.org/vishalkakadiya/
  *
@@ -11,90 +10,115 @@
  * @subpackage Product_Faq_For_Woocommerce/public/templates
  * @since      1.0.0
  */
-?>
 
-<h2><?php esc_attr_e( 'Question Answers', 'product-faq-for-wc' );?></h2>
-
-<?php
+// Abort if this file is accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 global $product;
 
-$brought = false;
+if ( ! $product instanceof WC_Product ) {
+	return;
+}
+?>
+
+<h2><?php esc_html_e( 'Question Answers', 'product-qa-for-woocommerce' ); ?></h2>
+
+<?php
+// Only customers who bought the product may answer questions.
+$product_faq_bought = false;
+
 if ( is_user_logged_in() ) {
-	$current_user = wp_get_current_user();
-	if ( wc_customer_bought_product( $current_user->user_email, $current_user->ID, $product->id ) ) {
-		$brought = true;
+	$product_faq_current_user = wp_get_current_user();
+
+	if ( wc_customer_bought_product( $product_faq_current_user->user_email, $product_faq_current_user->ID, $product->get_id() ) ) {
+		$product_faq_bought = true;
 	}
 }
 
+// Published questions attached to the current product.
+$product_faq_question_query = new WP_Query(
+	array(
+		'post_type'      => 'wc_product_faq',
+		'post_status'    => 'publish',
+		'post_parent'    => $product->get_id(),
+		'posts_per_page' => 50,
+		'no_found_rows'  => true,
+	)
+);
 
-// Question Query
-$question_query = new WP_Query( array(
-	'post_type'		=> 'wc_product_faq',
-	'post_parent'	=> $product->id,
-) );
-
-
-if ( $question_query->have_posts() ) :
-
-?>
+if ( $product_faq_question_query->have_posts() ) {
+	?>
 	<ul class="wc-faq-questions">
-		<?php while ( $question_query->have_posts() ) :
-			$question_query->the_post();
-			$question_id = get_the_ID(); ?>
+		<?php
+		/*
+		 * Loop over the posts directly instead of calling the_post(): WooCommerce
+		 * unsets the global $product on the_post for non-product posts, which
+		 * breaks any later render of this tab in the same request.
+		 */
+		foreach ( $product_faq_question_query->posts as $product_faq_question ) {
+			$product_faq_question_id = $product_faq_question->ID;
+			?>
 
 			<li class="wc-questions">
 				<div class="question-content">
-					<span class="question-symbol">Q</span>
-					<?php the_title(); ?>
-					<?php if ( $brought ) { ?>
-						<a data-id="<?php echo esc_attr( $question_id ); ?>" class="answer-button">
-							<?php esc_attr_e( 'Answer Now', 'product-faq-for-wc' ); ?>
-						</a>
-						<div id="<?php echo esc_attr( 'question-' . $question_id ); ?>" class="answer-slide">
+					<span class="question-symbol"><?php esc_html_e( 'Q', 'product-qa-for-woocommerce' ); ?></span>
+					<?php echo esc_html( get_the_title( $product_faq_question ) ); ?>
+					<?php if ( $product_faq_bought ) { ?>
+						<button type="button" data-id="<?php echo esc_attr( $product_faq_question_id ); ?>" class="answer-button" aria-controls="question-<?php echo esc_attr( $product_faq_question_id ); ?>" aria-expanded="false">
+							<?php esc_html_e( 'Answer Now', 'product-qa-for-woocommerce' ); ?>
+						</button>
+						<div id="question-<?php echo esc_attr( $product_faq_question_id ); ?>" class="answer-slide">
 							<form method="post">
-								<input type="text" placeholder="<?php esc_attr_e( 'Your answer...', 'product-faq-for-wc' );?>"  name="product_answer" class="field-answer" />
-								<input type="hidden" name="question_id" value="<?php echo esc_attr( $question_id ); ?>" />
-								<input type="submit" name="wc_give_answer" value="Answer" />
+								<?php wp_nonce_field( 'wc_give_answer_action', 'wc_give_answer_nonce' ); ?>
+								<input type="text"
+									placeholder="<?php esc_attr_e( 'Your answer...', 'product-qa-for-woocommerce' ); ?>"
+									aria-label="<?php esc_attr_e( 'Your answer', 'product-qa-for-woocommerce' ); ?>"
+									name="product_answer" class="field-answer" maxlength="2000" required />
+								<input type="hidden" name="question_id" value="<?php echo esc_attr( $product_faq_question_id ); ?>" />
+								<input type="submit" name="wc_give_answer"
+									value="<?php esc_attr_e( 'Answer', 'product-qa-for-woocommerce' ); ?>" />
 							</form>
 						</div>
 					<?php } ?>
 				</div>
-                <?php
-					$comments = get_approved_comments( $question_id );
-                    if ( ! empty( $comments ) ) :
-                ?>
-						<ul class="wc-faq-answers">
-							<?php foreach ( $comments as $comment ) { ?>
-								<li class="wc-answers">
-									<span class="answer-symbol"><?php esc_attr_e( 'A', 'product-faq-for-wc' );?></span>
-									<span class="answer"><?php echo esc_html( $comment->comment_content );?></span>
-								</li>
-							<?php } ?>
-						</ul><?php
-					endif;
+				<?php
+				$product_faq_answers = get_approved_comments( $product_faq_question_id );
+
+				if ( ! empty( $product_faq_answers ) ) {
+					?>
+					<ul class="wc-faq-answers">
+						<?php foreach ( $product_faq_answers as $product_faq_answer ) { ?>
+							<li class="wc-answers">
+								<span class="answer-symbol"><?php esc_html_e( 'A', 'product-qa-for-woocommerce' ); ?></span>
+								<span class="answer"><?php echo esc_html( $product_faq_answer->comment_content ); ?></span>
+							</li>
+						<?php } ?>
+					</ul>
+					<?php
+				}
 				?>
 			</li>
-		<?php endwhile; ?>
-	</ul><?php
+		<?php } ?>
+	</ul>
+	<?php
+} else {
+	echo '<p>' . esc_html__( 'No questions yet. Be the first to ask a question!', 'product-qa-for-woocommerce' ) . '</p>';
+}
 
-	/* Restore original Post Data */
-	wp_reset_postdata();
-
-else :
-    esc_attr_e( 'Not any questions yet, be the first to ask question ?', 'product-faq-for-wc' );
-endif;
-
-
-if ( is_user_logged_in() ) : ?>
-	<h3><?php esc_attr_e( 'Ask Question Now!', 'product-faq-for-wc' );?></h3>
+if ( is_user_logged_in() ) :
+	?>
+	<h3><?php esc_html_e( 'Ask Question Now!', 'product-qa-for-woocommerce' ); ?></h3>
 	<form method="post">
-		<input type="text" placeholder="<?php esc_attr_e( 'Your question ?', 'product-faq-for-wc' );?>" name="product_question" class="field-question" />
-		<input type="hidden" name="product_id" value="<?php echo esc_html( $product->id );?>" />
-		<input type="submit" name="wc_ask_question" value="<?php esc_attr_e( 'Ask Now', 'product-faq-for-wc' );?>" />
-	</form><?php
-
-else:
-    esc_attr_e( 'Please login to to ask questions...... now', 'product-faq-for-wc' );
+		<?php wp_nonce_field( 'wc_ask_question_action', 'wc_ask_question_nonce' ); ?>
+		<input type="text" placeholder="<?php esc_attr_e( 'Your question ?', 'product-qa-for-woocommerce' ); ?>"
+			aria-label="<?php esc_attr_e( 'Your question', 'product-qa-for-woocommerce' ); ?>"
+			name="product_question" class="field-question" maxlength="500" required />
+		<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" />
+		<input type="submit" name="wc_ask_question" value="<?php esc_attr_e( 'Ask Now', 'product-qa-for-woocommerce' ); ?>" />
+	</form>
+	<?php
+else :
+	echo '<p>' . esc_html__( 'Please login to ask questions.', 'product-qa-for-woocommerce' ) . '</p>';
 endif;
-?>

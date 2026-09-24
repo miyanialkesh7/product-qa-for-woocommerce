@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -10,8 +9,13 @@
  * @subpackage Product_Faq_For_Woocommerce/admin
  */
 
+// Abort if this file is accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
- * Managing 'Product' column in 'Product QA' table.
+ * Manage the Product column in the Product QA table.
  *
  * @since 1.0.0
  *
@@ -22,11 +26,11 @@
 class Product_Faq_For_Woocommerce_Admin {
 
 	/**
-	 * The post_type for Question and answers.
+	 * The post type for questions and answers.
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string     custom-post-type slug.
+	 * @var      string custom-post-type slug.
 	 */
 	private $post_type = 'wc_product_faq';
 
@@ -37,51 +41,53 @@ class Product_Faq_For_Woocommerce_Admin {
 	 * @access  public
 	 */
 	public function __construct() {
-
-		// Add new column
 		add_filter( "manage_{$this->post_type}_posts_columns", array( $this, 'column_title' ) );
-
-		// Add new column content
 		add_action( "manage_{$this->post_type}_posts_custom_column", array( $this, 'column_content' ), 1, 2 );
 	}
 
 	/**
-	 * Add "product" column in table.
+	 * Add the product column to the table.
 	 *
 	 * Callback function for manage_{$this->post_type}_posts_columns (filter).
 	 *
 	 * @since   1.0.0
 	 * @access  public
 	 *
-	 * @param   array $defaults column list.
+	 * @param   array $defaults Column list.
 	 *
-	 * @return  array $defaults column list.
+	 * @return  array Column list.
 	 */
 	public function column_title( $defaults ) {
-		$defaults['product'] = 'Product';
+		$defaults['product'] = __( 'Product', 'product-qa-for-woocommerce' );
 
 		return $defaults;
 	}
 
 	/**
-	 * Add content in column.
+	 * Render content in the product column.
 	 *
 	 * Callback function for manage_{$this->post_type}_posts_custom_column (action).
 	 *
 	 * @since   1.0.0
 	 * @access  public
 	 *
-	 * @param string $column_name column name.
-	 * @param int    $post_id     post id.
+	 * @param string $column_name Column name.
+	 * @param int    $post_id     Post id.
 	 */
 	public function column_content( $column_name, $post_id ) {
-
 		if ( 'product' === $column_name ) {
-			$product_id = wp_get_post_parent_id( $post_id ); ?>
-			<a href="<?php echo esc_attr( get_the_permalink( $product_id ) ); ?>">
-				<?php echo get_the_title( $product_id ); ?>
-			</a><?php
+			$product_id = wp_get_post_parent_id( absint( $post_id ) );
+
+			// Questions without a parent product have nothing to link to.
+			if ( ! $product_id ) {
+				echo '&mdash;';
+				return;
+			}
+			?>
+			<a href="<?php echo esc_url( get_the_permalink( $product_id ) ); ?>">
+				<?php echo esc_html( get_the_title( $product_id ) ); ?>
+			</a>
+			<?php
 		}
 	}
-
 }

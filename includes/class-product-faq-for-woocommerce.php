@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The file that defines the core plugin class
  *
@@ -12,6 +11,11 @@
  * @package    Product_Faq_For_Woocommerce
  * @subpackage Product_Faq_For_Woocommerce/includes
  */
+
+// Abort if this file is accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * The core plugin class.
@@ -45,7 +49,6 @@ class Product_Faq_For_Woocommerce {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -54,7 +57,7 @@ class Product_Faq_For_Woocommerce {
 	 * Include the following files that make up the plugin:
 	 *
 	 * - Product_Faq_For_Woocommerce_Loader. Orchestrates the hooks of the plugin.
-	 * - Product_Faq_For_Woocommerce_i18n. Defines internationalization functionality.
+	 * - Product_Faq_For_Woocommerce_I18n. Defines internationalization functionality.
 	 * - Product_Faq_For_Woocommerce_Settings. Defines all hooks for the Woocommerce settings.
 	 * - Product_Faq_For_Woocommerce_Public. Defines all hooks for the public side of the site.
 	 *
@@ -70,30 +73,29 @@ class Product_Faq_For_Woocommerce {
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-product-faq-for-woocommerce-i18n.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-product-faq-for-woocommerce-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-product-faq-for-woocommerce-admin.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-product-faq-for-woocommerce-admin.php';
 
 		/**
 		 * The class responsible for Woocommerce custom settings for of FAQ.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-product-faq-woocommmerce-settings.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-product-faq-for-woocommmerce-settings.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-product-faq-for-woocommerce-public.php';
-
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-product-faq-for-woocommerce-public.php';
 	}
 
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
-	 * Uses the Product_Faq_For_Woocommerce_i18n class in order to set the domain and to register the hook
+	 * Uses the Product_Faq_For_Woocommerce_I18n class in order to set the domain and to register the hook
 	 * with WordPress.
 	 *
 	 * @since    1.0.0
@@ -101,7 +103,7 @@ class Product_Faq_For_Woocommerce {
 	 */
 	public function set_locale() {
 
-		new Product_Faq_For_Woocommerce_i18n();
+		new Product_Faq_For_Woocommerce_I18n();
 	}
 
 	/**
@@ -113,10 +115,10 @@ class Product_Faq_For_Woocommerce {
 	 */
 	public function define_admin_hooks() {
 
-		// Admin settings
+		// Admin list table columns.
 		new Product_Faq_For_Woocommerce_Admin();
 
-		// Woocommerce settings
+		// WooCommerce settings.
 		new Product_Faq_For_Woocommmerce_Settings();
 	}
 
@@ -131,5 +133,4 @@ class Product_Faq_For_Woocommerce {
 
 		new Product_Faq_For_Woocommerce_Public();
 	}
-
 }
